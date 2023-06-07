@@ -34,10 +34,10 @@ jobs:
 
       - name: Build app with PyInstaller
         run: |
-          pyinstaller --onefile --hidden-import=yaml,xmltodict projekt.py
+          pyinstaller --onefile --hidden-import=yaml,xmltodict main.py
 
       - name: Archive compiled app
         uses: actions/upload-artifact@v3
         with:
           name: application
-          path: dist/projekt.exe
+          path: dist/main.exe
