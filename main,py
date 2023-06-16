@@ -1,16 +1,12 @@
-import yaml
-
-def load_yaml(file_path):
+def read_yaml_file(file_path):
     with open(file_path, 'r') as file:
         try:
             data = yaml.safe_load(file)
             return data
         except yaml.YAMLError as e:
-            print(f'Błąd parsowania pliku YAML: {e}')
+            print(f"Error parsing YAML file: {e}")
             return None
 
-file_path = 'plik.yml'
-data = load_yaml(file_path)
-if data:
-    # Przetwarzanie danych
-    print(data)
+yaml_data = read_yaml_file(input_file)
+if yaml_data is None:
+    sys.exit(1)
