@@ -1,11 +1,9 @@
 import argparse
 
-parser = argparse.ArgumentParser(description='Opis programu.')
-parser.add_argument('--option1', help='Opis opcji 1')
-parser.add_argument('--option2', help='Opis opcji 2')
+parser = argparse.ArgumentParser(description='File Converter')
+parser.add_argument('input_file', help='Input file path')
+parser.add_argument('output_file', help='Output file path')
 args = parser.parse_args()
 
-if args.option1:
-    print(f'Opcja 1: {args.option1}')
-if args.option2:
-    print(f'Opcja 2: {args.option2}')
+input_file = args.input_file
+output_file = args.output_file
