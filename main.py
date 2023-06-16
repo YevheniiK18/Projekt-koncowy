@@ -1,13 +1,8 @@
-import xml.etree.ElementTree as ET
+def write_xml_file(data, file_path):
+    root = ET.Element("root")
+    root.append(data)
+    tree = ET.ElementTree(root)
+    tree.write(file_path, encoding='utf-8', xml_declaration=True)
+    print("Data saved to XML file.")
 
-data = ET.Element('root')
-child = ET.SubElement(data, 'child')
-child.text = 'Tekst'
-
-def save_xml(data, file_path):
-    tree = ET.ElementTree(data)
-    with open(file_path, 'wb') as file:
-        tree.write(file)
-
-file_path = 'plik.xml'
-save_xml(data, file_path)
+write_xml_file(xml_data, output_file)
