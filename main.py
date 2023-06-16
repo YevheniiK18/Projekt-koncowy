@@ -3,7 +3,7 @@ import json
 import yaml
 import xml.etree.ElementTree as ET
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog
 import concurrent.futures
 
 def read_json_file(file_path):
@@ -93,13 +93,6 @@ class ConverterApp(QMainWindow):
         file_path, _ = file_dialog.getSaveFileName(self, "Wybierz plik wyjściowy")
         self.output_field.setText(file_path)
 
-    def select_input_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Wybierz plik wejściowy")
-        self.input_field.setText(file_path)
-
-    def select_output_file(self):
-        file_path, _ = QFileDialog.getSaveFileName(self, "Wybierz plik wyjściowy")
-        self.output_field.setText(file_path)
     def convert_data(self):
         input_file = self.input_field.text()
         output_file = self.output_field.text()
@@ -125,35 +118,8 @@ class ConverterApp(QMainWindow):
         print("Konwersja zakończona.")
 
 
-
 if __name__ == "__main__":
-    def convert_data_async(input_file, output_file):
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            if input_file.endswith('.json'):
-                read_future = executor.submit(read_json_file, input_file)
-                json_data = read_future.result()
-                write_future = executor.submit(write_json_file, json_data, output_file)
-                write_future.result()
-
-            elif input_file.endswith('.yml') or input_file.endswith('.yaml'):
-                read_future = executor.submit(read_yaml_file, input_file)
-                yaml_data = read_future.result()
-                write_future = executor.submit(write_yaml_file, yaml_data, output_file)
-                write_future.result()
-
-            elif input_file.endswith('.xml'):
-                read_future = executor.submit(read_xml_file, input_file)
-                xml_data = read_future.result()
-                write_future = executor.submit(write_xml_file, xml_data, output_file)
-                write_future.result()
-
-            else:
-                print("Nieobsługiwany format pliku.")
-
-            print("Konwersja zakończona.")
-
     app = QApplication(sys.argv)
     window = ConverterApp()
-    window.convert_button.clicked.connect(lambda: convert_data_async(window.input_field.text(), window.output_field.text()))
     window.show()
     sys.exit(app.exec())
