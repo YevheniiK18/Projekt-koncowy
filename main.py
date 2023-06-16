@@ -1,25 +1,10 @@
-import argparse
 import json
 
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('input_file', help='Ścieżka do pliku wejściowego')
-    parser.add_argument('output_file', help='Ścieżka do pliku wyjściowego')
-    args = parser.parse_args()
-    return args.input_file, args.output_file
+data = {'klucz': 'wartość'}
 
-input_file, output_file = parse_arguments()
-
-def read_json_file(file_path):
-    with open(file_path, 'r') as file:
-        try:
-            data = json.load(file)
-            return data
-        except json.JSONDecodeError as e:
-            print(f"Błąd dekodowania pliku JSON: {e}")
-            return None
-
-def write_json_file(data, file_path):
+def save_json(data, file_path):
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=4)
-    print("Dane zapisane do pliku JSON.")
+
+file_path = 'plik.json'
+save_json(data, file_path)
