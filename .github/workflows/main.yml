@@ -33,7 +33,7 @@ jobs:
 
       - name: Build app with PyInstaller
         run: |
-          pyinstaller --onefile --hidden-import=yaml,xmltodict project.py
+          pyinstaller --onefile --hidden-import=yaml,xmltodict main.py
 
       - name: Archive compiled app
         uses: actions/upload-artifact@v3
