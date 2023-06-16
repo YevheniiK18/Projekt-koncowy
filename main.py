@@ -12,5 +12,5 @@ def load_xml(file_path):
 file_path = 'plik.xml'
 root = load_xml(file_path)
 if root:
-    # Przetwarzanie danych
+
     print(root)
