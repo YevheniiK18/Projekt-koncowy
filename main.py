@@ -84,6 +84,16 @@ class ConverterApp(QMainWindow):
         self.setCentralWidget(widget)
 
     def select_input_file(self):
+        file_dialog = QFileDialog(self)
+        file_path, _ = file_dialog.getOpenFileName(self, "Wybierz plik wejściowy")
+        self.input_field.setText(file_path)
+
+    def select_output_file(self):
+        file_dialog = QFileDialog(self)
+        file_path, _ = file_dialog.getSaveFileName(self, "Wybierz plik wyjściowy")
+        self.output_field.setText(file_path)
+
+    def select_input_file(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Wybierz plik wejściowy")
         self.input_field.setText(file_path)
 
