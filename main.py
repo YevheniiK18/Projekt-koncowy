@@ -49,3 +49,9 @@ class ConverterApp(QMainWindow):
         thread = ConvertThread(input_file, output_file)
         thread.conversion_finished.connect(self.on_conversion_finished)
         thread.start()
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = ConverterApp()
+    window.show()
+    sys.exit(app.exec())
