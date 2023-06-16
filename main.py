@@ -1,10 +1,6 @@
-import json
-
-data = {'klucz': 'wartość'}
-
-def save_json(data, file_path):
+def write_json_file(data, file_path):
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=4)
+    print("Data saved to JSON file.")
 
-file_path = 'plik.json'
-save_json(data, file_path)
+write_json_file(json_data, output_file)
