@@ -30,8 +30,3 @@ def run_from_command_line():
     args = parse_arguments()
     convert_file(args.input_file, args.output_file)
 
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        run_from_command_line()
-    else:
-        run_with_ui()
