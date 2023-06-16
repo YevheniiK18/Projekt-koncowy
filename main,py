@@ -1,11 +1,11 @@
 def read_yaml_file(file_path):
-    with open(file_path, 'r') as file:
-        try:
+    try:
+        with open(file_path, 'r') as file:
             data = yaml.safe_load(file)
             return data
-        except yaml.YAMLError as e:
-            print(f"Error parsing YAML file: {e}")
-            return None
+    except (yaml.YAMLError, FileNotFoundError) as e:
+        print(f"Błąd odczytu pliku YAML: {e}")
+        return None
 
 yaml_data = read_yaml_file(input_file)
 if yaml_data is None:
