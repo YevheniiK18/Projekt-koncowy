@@ -1,11 +1,5 @@
-def read_yaml_file(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            data = yaml.safe_load(file)
-            return data
-    except (yaml.YAMLError, FileNotFoundError) as e:
-        print(f"Błąd odczytu pliku YAML: {e}")
-        return None
-yaml_data = read_yaml_file(input_file)
-if yaml_data is None:
-    sys.exit(1)
+def load_yaml(file_path):
+    with open(file_path, 'r') as file:
+        return yaml.safe_load(file)
+
+
