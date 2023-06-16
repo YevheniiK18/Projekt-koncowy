@@ -131,13 +131,13 @@ def run_from_command_line():
     convert_file(args.input_file, args.output_file)
 
 if __name__ == '__main__':
-  
+
     main_file = __file__
     if not check_syntax(main_file):
         print(f"Błąd składni w pliku: {main_file}")
         sys.exit(1)
 
-    # Проверка синтаксиса импортированных модулей
+
     imported_modules = [argparse, json, yaml, ET]
     for module in imported_modules:
         module_file = module.__file__ if hasattr(module, '__file__') else None
