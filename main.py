@@ -1,56 +1,13 @@
-import argparse
-import json
-import yaml
 import xml.etree.ElementTree as ET
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('input_file', help='Ścieżka do pliku wejściowego')
-    parser.add_argument('output_file', help='Ścieżka do pliku wyjściowego')
-    args = parser.parse_args()
-    return args.input_file, args.output_file
 
-input_file, output_file = parse_arguments()
+data = ET.Element('root')
+child = ET.SubElement(data, 'child')
+child.text = 'Tekst'
 
-def read_json_file(file_path):
-    with open(file_path, 'r') as file:
-        try:
-            data = json.load(file)
-            return data
-        except json.JSONDecodeError as e:
-            print(f"Błąd dekodowania pliku JSON: {e}")
-            return None
+def save_xml(data, file_path):
+    tree = ET.ElementTree(data)
+    with open(file_path, 'wb') as file:
+        tree.write(file)
 
-def write_json_file(data, file_path):
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=4)
-    print("Dane zapisane do pliku JSON.")
-
-def read_yaml_file(file_path):
-    with open(file_path, 'r') as file:
-        try:
-            data = yaml.safe_load(file)
-            return data
-        except yaml.YAMLError as e:
-            print(f"Błąd parsowania pliku YAML: {e}")
-            return None
-
-def write_yaml_file(data, file_path):
-    with open(file_path, 'w') as file:
-        yaml.dump(data, file)
-    print("Dane zapisane do pliku YAML.")
-
-def read_xml_file(file_path):
-    try:
-        tree = ET.parse(file_path)
-        root = tree.getroot()
-        return root
-    except ET.ParseError as e:
-        print(f"Błąd parsowania pliku XML: {e}")
-        return None
-
-def write_xml_file(data, file_path):
-    root = ET.Element("root")
-    root.append(data)
-    tree = ET.ElementTree(root)
-    tree.write(file_path, encoding='utf-8', xml_declaration=True)
-    print("Dane zapisane do pliku XML.")
+file_path = 'plik.xml'
+save_xml(data, file_path)
