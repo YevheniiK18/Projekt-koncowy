@@ -67,11 +67,7 @@ class ConverterWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, 'Error', str(e))
 
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('input_file', help='Input file path')
-    parser.add_argument('output_file', help='Output file path')
-    return parser.parse_args()
+
 
 def load_json(file_path):
     with open(file_path, 'r') as file:
