@@ -1,155 +1,98 @@
-import argparse
+import sys
 import json
 import yaml
 import xml.etree.ElementTree as ET
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QFileDialog
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
-
-class ConvertThread(QThread):
-    conversion_finished = pyqtSignal()
-
-    def __init__(self, input_file, output_file):
-        super().__init__()
-        self.input_file = input_file
-        self.output_file = output_file
-
-    def run(self):
-        if self.input_file.endswith('.json'):
-            json_data = self.read_json_file(self.input_file)
-            if json_data:
-                self.write_json_file(json_data, self.output_file)
-
-        elif self.input_file.endswith('.yml') or self.input_file.endswith('.yaml'):
-            yaml_data = self.read_yaml_file(self.input_file)
-            if yaml_data:
-                self.write_yaml_file(yaml_data, self.output_file)
-
-        elif self.input_file.endswith('.xml'):
-            xml_data = self.read_xml_file(self.input_file)
-            if xml_data:
-                self.write_xml_file(xml_data, self.output_file)
-
-        else:
-            self.show_message_box("Unsupported File Format")
-
-        self.conversion_finished.emit()
-
-    def read_json_file(self, file_path):
-        with open(file_path, 'r') as file:
-            try:
-                data = json.load(file)
-                return data
-            except json.JSONDecodeError as e:
-                self.show_message_box(f"Error decoding JSON file: {e}")
-                return None
-
-    def write_json_file(self, data, file_path):
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-        self.show_message_box("Data saved to JSON file.")
-
-    def read_yaml_file(self, file_path):
-        with open(file_path, 'r') as file:
-            try:
-                data = yaml.safe_load(file)
-                return data
-            except yaml.YAMLError as e:
-                self.show_message_box(f"Error parsing YAML file: {e}")
-                return None
-
-    def write_yaml_file(self, data, file_path):
-        with open(file_path, 'w') as file:
-            yaml.dump(data, file)
-        self.show_message_box("Data saved to YAML file.")
-
-    def read_xml_file(self, file_path):
-        try:
-            tree = ET.parse(file_path)
-            root = tree.getroot()
-            return root
-        except ET.ParseError as e:
-            self.show_message_box(f"Error parsing XML file: {e}")
-            return None
-
-    def write_xml_file(self, data, file_path):
-        root = ET.Element("root")
-        root.append(data)
-        tree = ET.ElementTree(root)
-        tree.write(file_path, encoding='utf-8', xml_declaration=True)
-        self.show_message_box("Data saved to XML file.")
-
-    def show_message_box(self, message):
-        msg_box = QMessageBox()
-        msg_box.setWindowTitle("Message")
-        msg_box.setText(message)
-        msg_box.exec_()
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QMessageBox, QFileDialog
 
 
-class ConverterApp(QMainWindow):
+class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("File Converter")
-        self.setGeometry(100, 100, 300, 150)
+        self.setWindowTitle("Moja aplikacja")
+        self.layout = QVBoxLayout()
+        self.label = QLabel("Wprowadź ścieżki do plików lub użyj przycisków, aby wczytać lub zapisać dane.")
+        self.load_button = QPushButton("Wczytaj")
+        self.save_button = QPushButton("Zapisz")
+        self.load_button.clicked.connect(self.load_data)
+        self.save_button.clicked.connect(self.save_data)
+        self.file_path_input = QLineEdit()
+        self.save_file_path_input = QLineEdit()
+        self.layout.addWidget(self.label)
+        self.layout.addWidget(QLabel("Ścieżka pliku do wczytania:"))
+        self.layout.addWidget(self.file_path_input)
+        self.layout.addWidget(self.load_button)
+        self.layout.addWidget(QLabel("Ścieżka pliku do zapisu:"))
+        self.layout.addWidget(self.save_file_path_input)
+        self.layout.addWidget(self.save_button)
+        self.setLayout(self.layout)
 
-        self.input_label = QLabel("Input File:", self)
-        self.input_field = QLineEdit(self)
-        self.input_button = QPushButton("Browse", self)
-        self.input_button.clicked.connect(self.browse_input)
+    def load_data(self):
+        file_path = self.file_path_input.text()
+        if not file_path:
+            options = QFileDialog.Options()
+            file_path, _ = QFileDialog.getOpenFileName(self, "Wczytaj plik", "", "All Files (*);;JSON Files (*.json);;YAML Files (*.yml);;XML Files (*.xml)", options=options)
+            if not file_path:
+                return
 
-        self.output_label = QLabel("Output File:", self)
-        self.output_field = QLineEdit(self)
-        self.output_button = QPushButton("Browse", self)
-        self.output_button.clicked.connect(self.browse_output)
+        self.file_path_input.setText(file_path)
 
-        self.convert_button = QPushButton("Convert", self)
-        self.convert_button.clicked.connect(self.convert_data)
+        try:
+            if file_path.endswith('.json'):
+                with open(file_path, 'r') as json_file:
+                    data = json.load(json_file)
+                    self.label.setText(f'Wczytano dane z pliku JSON: {data}')
+            elif file_path.endswith('.yml'):
+                with open(file_path, 'r') as yaml_file:
+                    data = yaml.safe_load(yaml_file)
+                    self.label.setText(f'Wczytano dane z pliku YAML: {data}')
+            elif file_path.endswith('.xml'):
+                tree = ET.parse(file_path)
+                root = tree.getroot()
+                self.label.setText(f'Wczytano dane z pliku XML: {root.tag}')
+            else:
+                self.label.setText('Nieobsługiwany format pliku')
+        except Exception as e:
+            self.label.setText(f'Błąd wczytywania pliku: {str(e)}')
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.input_label)
-        layout.addWidget(self.input_field)
-        layout.addWidget(self.input_button)
-        layout.addWidget(self.output_label)
-        layout.addWidget(self.output_field)
-        layout.addWidget(self.output_button)
-        layout.addWidget(self.convert_button)
+        self.label.setText('Operacja zrobiona')
 
-        widget = QWidget(self)
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
+    def save_data(self):
+        save_file_path = self.save_file_path_input.text()
+        if not save_file_path:
+            options = QFileDialog.Options()
+            save_file_path, _ = QFileDialog.getSaveFileName(self, "Zapisz plik", "", "All Files (*);;JSON Files (*.json);;YAML Files (*.yml);;XML Files (*.xml)", options=options)
+            if not save_file_path:
+                return
 
-    def browse_input(self):
-        file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(self, "Select Input File")
-        if file_path:
-            self.input_field.setText(file_path)
+        self.save_file_path_input.setText(save_file_path)
 
-    def browse_output(self):
-        file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getSaveFileName(self, "Select Output File")
-        if file_path:
-            self.output_field.setText(file_path)
+        try:
+            if save_file_path.endswith('.json'):
+                data = {'example': 'data'}
+                with open(save_file_path, 'w') as json_file:
+                    json.dump(data, json_file, indent=4)
+                self.label.setText('Dane zapisano do pliku JSON')
+            elif save_file_path.endswith('.yml'):
+                data = {'example': 'data'}
+                with open(save_file_path, 'w') as yaml_file:
+                    yaml.dump(data, yaml_file)
+                self.label.setText('Dane zapisano do pliku YAML')
+            elif save_file_path.endswith('.xml'):
+                root = ET.Element('root')
+                ET.SubElement(root, 'example').text = 'data'
+                tree = ET.ElementTree(root)
+                tree.write(save_file_path)
+                self.label.setText('Dane zapisano do pliku XML')
+            else:
+                self.label.setText('Nieobsługiwany format pliku')
+        except Exception as e:
+            self.label.setText(f'Błąd zapisu do pliku: {str(e)}')
 
-    def convert_data(self):
-        input_file = self.input_field.text()
-        output_file = self.output_field.text()
-
-        thread = ConvertThread(input_file, output_file)
-        thread.conversion_finished.connect(self.on_conversion_finished)
-        thread.start()
-
-    def on_conversion_finished(self):
-        self.show_message_box("Conversion finished.")
-
-    def show_message_box(self, message):
-        msg_box = QMessageBox()
-        msg_box.setWindowTitle("Message")
-        msg_box.setText(message)
-        msg_box.exec_()
+        self.label.setText('Operacja zrobiona')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = ConverterApp()
+    window = MainWindow()
     window.show()
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
