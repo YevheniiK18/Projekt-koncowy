@@ -1,23 +1,22 @@
-import asyncio
-import threading
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 
-def load_file_async(file_path):
- 
-    data = {'klucz': 'wartość'}
-    return data
+class ConvertThread(QThread):
+    conversion_finished = pyqtSignal()
 
-def save_file_async(data, file_path):
+    def __init__(self, input_file, output_file):
+        super().__init__()
+        self.input_file = input_file
+        self.output_file = output_file
 
-    print(f'Zapisano dane do pliku: {file_path}')
+    def run(self):
+        # Wykonaj odpowiednie zadanie konwersji (Task2-Task7) z kodu powyżej
+        # Na końcu, emituj sygnał conversion_finished
+        self.conversion_finished.emit()
 
-async def async_file_operations(file_path):
-    loop = asyncio.get_event_loop()
+    def convert_data(self):
+        thread = ConvertThread(input_file, output_file)
+        thread.conversion_finished.connect(self.on_conversion_finished)
+        thread.start()
 
-    load_task = loop.run_in_executor(None, load_file_async, file_path)
-    data = await load_task
-
-    save_task = loop.run_in_executor(None, save_file_async, data, file_path)
-    await save_task
-
-file_path = 'plik.json'
-asyncio.run(async_file_operations(file_path))
+    def on_conversion_finished(self):
+        self.show_message_box("Conversion finished.")
