@@ -3,8 +3,8 @@ def read_xml_file(file_path):
         tree = ET.parse(file_path)
         root = tree.getroot()
         return root
-    except ET.ParseError as e:
-        print(f"Error parsing XML file: {e}")
+    except (ET.ParseError, FileNotFoundError) as e:
+        print(f"Błąd odczytu pliku XML: {e}")
         return None
 
 xml_data = read_xml_file(input_file)
