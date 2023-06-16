@@ -1,45 +1,53 @@
-from PyQt5.QtWidgets import QFileDialog
-
-class ConverterApp(QMainWindow):
+class ConverterWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Konwerter danych")
-        self.setGeometry(100, 100, 300, 150)
+        self.setWindowTitle('Data Converter')
+        self.setGeometry(100, 100, 400, 150)
 
-        self.input_label = QLabel("Plik wejściowy:", self)
-        self.input_field = QLineEdit(self)
-
-        self.output_label = QLabel("Plik wyjściowy:", self)
-        self.output_field = QLineEdit(self)
-
-        self.select_input_button = QPushButton("Wybierz plik wejściowy", self)
-        self.select_input_button.clicked.connect(self.select_input_file)
-
-        self.select_output_button = QPushButton("Wybierz plik wyjściowy", self)
-        self.select_output_button.clicked.connect(self.select_output_file)
-
-        self.convert_button = QPushButton("Konwertuj", self)
-        self.convert_button.clicked.connect(self.convert_data)
-
+        main_widget = QWidget()
         layout = QVBoxLayout()
+        main_widget.setLayout(layout)
+
+        self.input_label = QLabel('Input File:')
+        self.input_line_edit = QLineEdit()
+        self.input_button = QPushButton('Browse...')
+        self.input_button.clicked.connect(self.browse_input_file)
+
+        self.output_label = QLabel('Output File:')
+        self.output_line_edit = QLineEdit()
+        self.output_button = QPushButton('Browse...')
+        self.output_button.clicked.connect(self.browse_output_file)
+
+        self.convert_button = QPushButton('Convert')
+        self.convert_button.clicked.connect(self.convert_files)
+
         layout.addWidget(self.input_label)
-        layout.addWidget(self.input_field)
-        layout.addWidget(self.select_input_button)
+        layout.addWidget(self.input_line_edit)
+        layout.addWidget(self.input_button)
         layout.addWidget(self.output_label)
-        layout.addWidget(self.output_field)
-        layout.addWidget(self.select_output_button)
+        layout.addWidget(self.output_line_edit)
+        layout.addWidget(self.output_button)
         layout.addWidget(self.convert_button)
 
-        widget = QWidget(self)
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
+        self.setCentralWidget(main_widget)
 
-    def select_input_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Wybierz plik wejściowy")
-        if file_path:
-            self.input_field.setText(file_path)
+    def browse_input_file(self):
+        file_dialog = QFileDialog()
+        file_dialog.setAcceptMode(QFileDialog.AcceptOpen)
+        input_file = file_dialog.getOpenFileName()[0]
+        self.input_line_edit.setText(input_file)
 
-    def select_output_file(self):
-        file_path, _ = QFileDialog.getSaveFileName(self, "Wybierz plik wyjściowy")
-        if file_path:
-            self.output_field.setText(file_path)
+    def browse_output_file(self):
+        file_dialog = QFileDialog()
+        file_dialog.setAcceptMode(QFileDialog.AcceptSave)
+        output_file = file_dialog.getSaveFileName()[0]
+        self.output_line_edit.setText(output_file)
+
+    def convert_files(self):
+        input_file = self.input_line_edit.text()
+        output_file = self.output_line_edit.text()
+        try:
+            convert_file(input_file, output_file)
+            QMessageBox.information(self, 'Success', 'Conversion completed successfully.')
+        except Exception as e:
+            QMessageBox.critical(self, 'Error', str(e))
