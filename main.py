@@ -1,121 +1,127 @@
-import argparse
 import json
 import yaml
 import xml.etree.ElementTree as ET
-import tkinter as tk
-import asyncio
-import threading
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QFileDialog
 
+class ConverterApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("File Converter")
+        self.setGeometry(100, 100, 300, 150)
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Opis programu.')
-    parser.add_argument('--option1', help='Opis opcji 1')
-    parser.add_argument('--option2', help='Opis opcji 2')
-    args = parser.parse_args()
+        self.input_label = QLabel("Input File:", self)
+        self.input_field = QLineEdit(self)
+        self.input_button = QPushButton("Browse", self)
+        self.input_button.clicked.connect(self.browse_input)
 
-    if args.option1:
-        print(f'Opcja 1: {args.option1}')
-    if args.option2:
-        print(f'Opcja 2: {args.option2}')
+        self.output_label = QLabel("Output File:", self)
+        self.output_field = QLineEdit(self)
+        self.output_button = QPushButton("Browse", self)
+        self.output_button.clicked.connect(self.browse_output)
 
+        self.convert_button = QPushButton("Convert", self)
+        self.convert_button.clicked.connect(self.convert_data)
 
-def load_json(file_path):
-    with open(file_path, 'r') as file:
+        layout = QVBoxLayout()
+        layout.addWidget(self.input_label)
+        layout.addWidget(self.input_field)
+        layout.addWidget(self.input_button)
+        layout.addWidget(self.output_label)
+        layout.addWidget(self.output_field)
+        layout.addWidget(self.output_button)
+        layout.addWidget(self.convert_button)
+
+        widget = QWidget(self)
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+
+    def browse_input(self):
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getOpenFileName(self, "Select Input File")
+        if file_path:
+            self.input_field.setText(file_path)
+
+    def browse_output(self):
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getSaveFileName(self, "Select Output File")
+        if file_path:
+            self.output_field.setText(file_path)
+
+    def convert_data(self):
+        input_file = self.input_field.text()
+        output_file = self.output_field.text()
+
+        if input_file.endswith('.json'):
+            json_data = self.read_json_file(input_file)
+            if json_data:
+                self.write_json_file(json_data, output_file)
+
+        elif input_file.endswith('.yml') or input_file.endswith('.yaml'):
+            yaml_data = self.read_yaml_file(input_file)
+            if yaml_data:
+                self.write_yaml_file(yaml_data, output_file)
+
+        elif input_file.endswith('.xml'):
+            xml_data = self.read_xml_file(input_file)
+            if xml_data:
+                self.write_xml_file(xml_data, output_file)
+
+        else:
+            self.show_message_box("Unsupported File Format")
+
+    def read_json_file(self, file_path):
+        with open(file_path, 'r') as file:
+            try:
+                data = json.load(file)
+                return data
+            except json.JSONDecodeError as e:
+                self.show_message_box(f"Error decoding JSON file: {e}")
+                return None
+
+    def write_json_file(self, data, file_path):
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
+        self.show_message_box("Data saved to JSON file.")
+
+    def read_yaml_file(self, file_path):
+        with open(file_path, 'r') as file:
+            try:
+                data = yaml.safe_load(file)
+                return data
+            except yaml.YAMLError as e:
+                self.show_message_box(f"Error parsing YAML file: {e}")
+                return None
+
+    def write_yaml_file(self, data, file_path):
+        with open(file_path, 'w') as file:
+            yaml.dump(data, file)
+        self.show_message_box("Data saved to YAML file.")
+
+    def read_xml_file(self, file_path):
         try:
-            data = json.load(file)
-            return data
-        except json.JSONDecodeError as e:
-            print(f'Błąd parsowania pliku JSON: {e}')
+            tree = ET.parse(file_path)
+            root = tree.getroot()
+            return root
+        except ET.ParseError as e:
+            self.show_message_box(f"Error parsing XML file: {e}")
             return None
 
+    def write_xml_file(self, data, file_path):
+        root = ET.Element("root")
+        root.append(data)
+        tree = ET.ElementTree(root)
+        tree.write(file_path, encoding='utf-8', xml_declaration=True)
+        self.show_message_box("Data saved to XML file.")
 
-def save_json(data, file_path):
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=4)
+    def show_message_box(self, message):
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle("Message")
+        msg_box.setText(message)
+        msg_box.exec_()
 
-
-def load_yaml(file_path):
-    with open(file_path, 'r') as file:
-        try:
-            data = yaml.safe_load(file)
-            return data
-        except yaml.YAMLError as e:
-            print(f'Błąd parsowania pliku YAML: {e}')
-            return None
-
-
-def save_yaml(data, file_path):
-    with open(file_path, 'w') as file:
-        yaml.dump(data, file)
-
-
-def load_xml(file_path):
-    try:
-        tree = ET.parse(file_path)
-        root = tree.getroot()
-        return root
-    except ET.ParseError as e:
-        print(f'Błąd parsowania pliku XML: {e}')
-        return None
-
-
-def save_xml(data, file_path):
-    tree = ET.ElementTree(data)
-    with open(file_path, 'wb') as file:
-        tree.write(file)
-
-
-def on_button_click():
-    print('Kliknięto przycisk')
-
-
-def create_ui():
-    root = tk.Tk()
-    button = tk.Button(root, text='Kliknij mnie', command=on_button_click)
-    button.pack()
-    root.mainloop()
-
-
-def load_file_async(file_path):
-    data = {'klucz': 'wartość'}
-    return data
-
-
-def save_file_async(data, file_path):
-    print(f'Zapisano dane do pliku: {file_path}')
-
-
-async def async_file_operations(file_path):
-    loop = asyncio.get_event_loop()
-    load_task = loop.run_in_executor(None, load_file_async, file_path)
-    data = await load_task
-    save_task = loop.run_in_executor(None, save_file_async, data, file_path)
-    await save_task
-
-
-def main():
-    parse_arguments()
-    json_data = load_json('plik.json')
-    if json_data:
-        print(json_data)
-    data_to_save = {'klucz': 'wartość'}
-    save_json(data_to_save, 'nowy_plik.json')
-    yaml_data = load_yaml('plik.yml')
-    if yaml_data:
-        print(yaml_data)
-    data_to_save = {'klucz': 'wartość'}
-    save_yaml(data_to_save, 'nowy_plik.yml')
-    xml_data = load_xml('plik.xml')
-    if xml_data:
-        print(xml_data)
-    data_to_save = ET.Element('root')
-    child = ET.SubElement(data_to_save, 'child')
-    child.text = 'Tekst'
-    save_xml(data_to_save, 'nowy_plik.xml')
-    create_ui()
-    file_path = 'plik.json'
-    asyncio.run(async_file_operations(file_path))
-
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = ConverterApp()
+    window.show()
+    sys.exit(app.exec())
