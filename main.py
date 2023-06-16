@@ -1,11 +1,11 @@
 def read_json_file(file_path):
-    with open(file_path, 'r') as file:
-        try:
+    try:
+        with open(file_path, 'r') as file:
             data = json.load(file)
             return data
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON file: {e}")
-            return None
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        print(f"Błąd odczytu pliku JSON: {e}")
+        return None
 
 json_data = read_json_file(input_file)
 if json_data is None:
