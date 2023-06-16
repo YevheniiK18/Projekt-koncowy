@@ -12,5 +12,5 @@ def load_json(file_path):
 file_path = 'plik.json'
 data = load_json(file_path)
 if data:
-    # Przetwarzanie danych
+    
     print(data)
