@@ -44,9 +44,9 @@ if __name__ == "__main__":
                 write_future.result()
 
             else:
-                print("Nieobsługiwany format pliku.")
+                print("Nieobsługiwany format.")
 
-            print("Konwersja zakończona.")
+            print("Konwersja zrobiona.")
 
     app = QApplication(sys.argv)
     window = ConverterApp()
