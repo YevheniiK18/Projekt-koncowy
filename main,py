@@ -1,5 +1,6 @@
 import argparse
 import json
+import yaml
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -23,3 +24,12 @@ def write_json_file(data, file_path):
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=4)
     print("Dane zapisane do pliku JSON.")
+
+def read_yaml_file(file_path):
+    with open(file_path, 'r') as file:
+        try:
+            data = yaml.safe_load(file)
+            return data
+        except yaml.YAMLError as e:
+            print(f"Błąd parsowania pliku YAML: {e}")
+            return None
