@@ -1,16 +1,12 @@
-import xml.etree.ElementTree as ET
-
-def load_xml(file_path):
+def read_xml_file(file_path):
     try:
         tree = ET.parse(file_path)
         root = tree.getroot()
         return root
     except ET.ParseError as e:
-        print(f'Błąd parsowania pliku XML: {e}')
+        print(f"Error parsing XML file: {e}")
         return None
 
-file_path = 'plik.xml'
-root = load_xml(file_path)
-if root:
-
-    print(root)
+xml_data = read_xml_file(input_file)
+if xml_data is None:
+    sys.exit(1)
