@@ -1,12 +1,11 @@
 import argparse
 
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('input_file', help='Ścieżka do pliku wejściowego')
-    parser.add_argument('output_file', help='Ścieżka do pliku wyjściowego')
-    args = parser.parse_args()
-    return args.input_file, args.output_file
+parser = argparse.ArgumentParser(description='Opis programu.')
+parser.add_argument('--option1', help='Opis opcji 1')
+parser.add_argument('--option2', help='Opis opcji 2')
+args = parser.parse_args()
 
-input_file, output_file = parse_arguments()
-print(f"Plik wejściowy: {input_file}")
-print(f"Plik wyjściowy: {output_file}")
+if args.option1:
+    print(f'Opcja 1: {args.option1}')
+if args.option2:
+    print(f'Opcja 2: {args.option2}')
