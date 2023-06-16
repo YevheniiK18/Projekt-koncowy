@@ -3,7 +3,7 @@ import json
 import yaml
 import xml.etree.ElementTree as ET
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton
 import concurrent.futures
 
 def read_json_file(file_path):
@@ -59,13 +59,9 @@ class ConverterApp(QMainWindow):
 
         self.input_label = QLabel("Plik wejściowy:", self)
         self.input_field = QLineEdit(self)
-        self.input_button = QPushButton("Wybierz plik", self)
-        self.input_button.clicked.connect(self.select_input_file)
 
         self.output_label = QLabel("Plik wyjściowy:", self)
         self.output_field = QLineEdit(self)
-        self.output_button = QPushButton("Wybierz plik", self)
-        self.output_button.clicked.connect(self.select_output_file)
 
         self.convert_button = QPushButton("Konwertuj", self)
         self.convert_button.clicked.connect(self.convert_data)
@@ -73,25 +69,13 @@ class ConverterApp(QMainWindow):
         layout = QVBoxLayout()
         layout.addWidget(self.input_label)
         layout.addWidget(self.input_field)
-        layout.addWidget(self.input_button)
         layout.addWidget(self.output_label)
         layout.addWidget(self.output_field)
-        layout.addWidget(self.output_button)
         layout.addWidget(self.convert_button)
 
         widget = QWidget(self)
         widget.setLayout(layout)
         self.setCentralWidget(widget)
-
-    def select_input_file(self):
-        file_dialog = QFileDialog(self)
-        file_path, _ = file_dialog.getOpenFileName(self, "Wybierz plik wejściowy")
-        self.input_field.setText(file_path)
-
-    def select_output_file(self):
-        file_dialog = QFileDialog(self)
-        file_path, _ = file_dialog.getSaveFileName(self, "Wybierz plik wyjściowy")
-        self.output_field.setText(file_path)
 
     def convert_data(self):
         input_file = self.input_field.text()
@@ -116,6 +100,7 @@ class ConverterApp(QMainWindow):
             print("Nieobsługiwany format pliku.")
 
         print("Konwersja zakończona.")
+
 
 
 if __name__ == "__main__":
