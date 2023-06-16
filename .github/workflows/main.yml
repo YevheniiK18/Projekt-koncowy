@@ -34,6 +34,9 @@ jobs:
       - name: Build app with PyInstaller
         run: |
           pyinstaller --onefile --hidden-import=yaml,xmltodict main.py
+      - name: Run syntax check
+        run: |
+          python main.py --syntax-check
 
       - name: Archive compiled app
         uses: actions/upload-artifact@v3
