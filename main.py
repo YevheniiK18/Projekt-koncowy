@@ -51,3 +51,9 @@ class ConverterWindow(QMainWindow):
             QMessageBox.information(self, 'Success', 'Conversion completed successfully.')
         except Exception as e:
             QMessageBox.critical(self, 'Error', str(e))
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        run_from_command_line()
+    else:
+        run_with_ui()
