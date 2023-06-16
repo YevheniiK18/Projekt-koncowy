@@ -1,74 +1,39 @@
+import argparse
 import json
 import yaml
 import xml.etree.ElementTree as ET
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QFileDialog
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 
-class ConverterApp(QMainWindow):
-    def __init__(self):
+class ConvertThread(QThread):
+    conversion_finished = pyqtSignal()
+
+    def __init__(self, input_file, output_file):
         super().__init__()
-        self.setWindowTitle("File Converter")
-        self.setGeometry(100, 100, 300, 150)
+        self.input_file = input_file
+        self.output_file = output_file
 
-        self.input_label = QLabel("Input File:", self)
-        self.input_field = QLineEdit(self)
-        self.input_button = QPushButton("Browse", self)
-        self.input_button.clicked.connect(self.browse_input)
-
-        self.output_label = QLabel("Output File:", self)
-        self.output_field = QLineEdit(self)
-        self.output_button = QPushButton("Browse", self)
-        self.output_button.clicked.connect(self.browse_output)
-
-        self.convert_button = QPushButton("Convert", self)
-        self.convert_button.clicked.connect(self.convert_data)
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.input_label)
-        layout.addWidget(self.input_field)
-        layout.addWidget(self.input_button)
-        layout.addWidget(self.output_label)
-        layout.addWidget(self.output_field)
-        layout.addWidget(self.output_button)
-        layout.addWidget(self.convert_button)
-
-        widget = QWidget(self)
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
-
-    def browse_input(self):
-        file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(self, "Select Input File")
-        if file_path:
-            self.input_field.setText(file_path)
-
-    def browse_output(self):
-        file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getSaveFileName(self, "Select Output File")
-        if file_path:
-            self.output_field.setText(file_path)
-
-    def convert_data(self):
-        input_file = self.input_field.text()
-        output_file = self.output_field.text()
-
-        if input_file.endswith('.json'):
-            json_data = self.read_json_file(input_file)
+    def run(self):
+        if self.input_file.endswith('.json'):
+            json_data = self.read_json_file(self.input_file)
             if json_data:
-                self.write_json_file(json_data, output_file)
+                self.write_json_file(json_data, self.output_file)
 
-        elif input_file.endswith('.yml') or input_file.endswith('.yaml'):
-            yaml_data = self.read_yaml_file(input_file)
+        elif self.input_file.endswith('.yml') or self.input_file.endswith('.yaml'):
+            yaml_data = self.read_yaml_file(self.input_file)
             if yaml_data:
-                self.write_yaml_file(yaml_data, output_file)
+                self.write_yaml_file(yaml_data, self.output_file)
 
-        elif input_file.endswith('.xml'):
-            xml_data = self.read_xml_file(input_file)
+        elif self.input_file.endswith('.xml'):
+            xml_data = self.read_xml_file(self.input_file)
             if xml_data:
-                self.write_xml_file(xml_data, output_file)
+                self.write_xml_file(xml_data, self.output_file)
 
         else:
             self.show_message_box("Unsupported File Format")
+
+        self.conversion_finished.emit()
 
     def read_json_file(self, file_path):
         with open(file_path, 'r') as file:
@@ -119,6 +84,69 @@ class ConverterApp(QMainWindow):
         msg_box.setWindowTitle("Message")
         msg_box.setText(message)
         msg_box.exec_()
+
+
+class ConverterApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("File Converter")
+        self.setGeometry(100, 100, 300, 150)
+
+        self.input_label = QLabel("Input File:", self)
+        self.input_field = QLineEdit(self)
+        self.input_button = QPushButton("Browse", self)
+        self.input_button.clicked.connect(self.browse_input)
+
+        self.output_label = QLabel("Output File:", self)
+        self.output_field = QLineEdit(self)
+        self.output_button = QPushButton("Browse", self)
+        self.output_button.clicked.connect(self.browse_output)
+
+        self.convert_button = QPushButton("Convert", self)
+        self.convert_button.clicked.connect(self.convert_data)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.input_label)
+        layout.addWidget(self.input_field)
+        layout.addWidget(self.input_button)
+        layout.addWidget(self.output_label)
+        layout.addWidget(self.output_field)
+        layout.addWidget(self.output_button)
+        layout.addWidget(self.convert_button)
+
+        widget = QWidget(self)
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+
+    def browse_input(self):
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getOpenFileName(self, "Select Input File")
+        if file_path:
+            self.input_field.setText(file_path)
+
+    def browse_output(self):
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getSaveFileName(self, "Select Output File")
+        if file_path:
+            self.output_field.setText(file_path)
+
+    def convert_data(self):
+        input_file = self.input_field.text()
+        output_file = self.output_field.text()
+
+        thread = ConvertThread(input_file, output_file)
+        thread.conversion_finished.connect(self.on_conversion_finished)
+        thread.start()
+
+    def on_conversion_finished(self):
+        self.show_message_box("Conversion finished.")
+
+    def show_message_box(self, message):
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle("Message")
+        msg_box.setText(message)
+        msg_box.exec_()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
