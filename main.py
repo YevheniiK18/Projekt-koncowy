@@ -141,8 +141,3 @@ if __name__ == '__main__':
             print(f"Błąd składni w pliku: {module_file}")
             sys.exit(1)
 
-
-    if len(sys.argv) > 1:
-        run_from_command_line()
-    else:
-        run_with_ui()
